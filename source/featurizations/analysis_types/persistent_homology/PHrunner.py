@@ -18,9 +18,8 @@ from ripser import ripser
 from persim import plot_diagrams
 import matplotlib.pyplot as plt
 import pandas as pd
-import matplotlib.pyplot as plt
 
-import structurepartitioning as sp
+from ...timescales.structural.atompartitioning import AtomPartition
 import pdbutils
 
 
@@ -37,7 +36,7 @@ def runPH(positions:np.array, savefig:bool=False) -> list:
         diagrams = ph['dgms'] # extract the persistence diagram
     except:
         return
-    
+
     if savefig:
         plot_diagrams(diagrams, show=False) # plot the diagrams
         plt.savefig("persistent_homology.png") # save the figure

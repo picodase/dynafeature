@@ -3,7 +3,9 @@ IMPORTS
 '''
 import Bio.PDB
 import numpy as np
-import pdbutils
+#import pdbutils
+
+from .structureUtils import Structure
 
 '''
 CONSTANTS
@@ -39,33 +41,35 @@ def getAllAtomPositions(struc:Bio.PDB.Structure.Structure) -> np.ndarray:
     return np.array(coords)    # convert to np.ndarray
 
 class StructurePartition():
-    def __init__(self, struc):
+    def __init__(self, struc:Structure):
+        self.structure = struc
+
+class MacromoleculePartition(StructurePartition):
+    def __init__(self, struc:Structure, it:str="only_protein"):
+        self.interactype = it   # Interaction type
         self.structure = struc
         
-    class onlyLigand():
-        def __init__(self, struc):
-            self.structure = struc
-    
-    class onlyProtein():
-        def __init__(self, struc):
-            self.structure = struc
-            self.bindingpocket = 0
-            self.distant = 0
-    
-    class interactionsLP():
-        def __init__(self, struc):
-            self.structure = struc
-            self.firstshell = 0
-            self.secondshell = 0
-            self.distant = 0
+class onlyLigand(MacromoleculePartition):
+    def __init__(self, struc:Structure):
+
+class onlyProtein(MacromoleculePartition):
+    def __init__(self, struc):
+        self.bindingpocket = 0
+        self.distant = 0
+
+class interactionsLigandProtein(MacromoleculePartition):
+    def __init__(self, struc):
+        self.firstshell = 0
+        self.secondshell = 0
+        self.distant = 0
             
-class AtomPartition():
+class AtomPartition(StructurePartition):
     def sepEN(self) -> np.ndarray:
         '''
         Obtains a position array for the 3D-coordinates of each atom in the provided structure.
         '''
         coords = []   # construct a (3 x natoms) array
-        for model in self.struc: # for each model,
+        for model in self.structure: # for each model,
             for chain in model:    # for each chain,
                 for res in chain:   # for each residue,
                     for atom in res:    # for each atom,
@@ -78,7 +82,7 @@ class AtomPartition():
         Obtains a position array for the 3D-coordinates of each atom in the provided structure.
         '''
         coords = []   # construct a (3 x natoms) array
-        for model in self.struc: # for each model,
+        for model in self.structure: # for each model,
             for chain in model:    # for each chain,
                 for res in chain:   # for each residue,
                     for atom in res:    # for each atom,
@@ -91,7 +95,7 @@ class AtomPartition():
         Obtains a position array for the 3D-coordinates of each atom in the provided structure.
         '''
         coords = []   # construct a (3 x natoms) array
-        for model in self.struc: # for each model,
+        for model in self.structure: # for each model,
             for chain in model:    # for each chain,
                 for res in chain:   # for each residue,
                     for atom in res:    # for each atom,
@@ -104,7 +108,7 @@ class AtomPartition():
         Obtains a position array for the 3D-coordinates of each atom in the provided structure.
         '''
         coords = []   # construct a (3 x natoms) array
-        for model in self.struc: # for each model,
+        for model in self.structure: # for each model,
             for chain in model:    # for each chain,
                 for res in chain:   # for each residue,
                     for atom in res:    # for each atom,
@@ -119,7 +123,7 @@ class AtomPartition():
         Obtains a position array for the 3D-coordinates of each atom in the provided structure.
         '''
         coords = []   # construct a (3 x natoms) array
-        for model in self.struc: # for each model,
+        for model in self.structure: # for each model,
             for chain in model:    # for each chain,
                 for res in chain:   # for each residue,
                     if res.get_resname() in hydrophobics: # if residue is in the class of hydrophobic aa's,
@@ -132,7 +136,7 @@ class AtomPartition():
         Obtains a position array for the 3D-coordinates of each atom in the provided structure.
         '''
         coords = []   # construct a (3 x natoms) array
-        for model in self.struc: # for each model,
+        for model in self.structure: # for each model,
             for chain in model:    # for each chain,
                 for res in chain:   # for each residue,
                     if res.get_resname() in polarunchargeds:  # if residue is in the class of polar aa's,
@@ -145,7 +149,7 @@ class AtomPartition():
         Obtains a position array for the 3D-coordinates of each atom in the provided structure.
         '''
         coords = []   # construct a (3 x natoms) array
-        for model in self.struc: # for each model,
+        for model in self.structure: # for each model,
             for chain in model:    # for each chain,
                 for res in chain:   # for each residue,
                     if res.get_resname() in acidics:  # if residue is in the class of polar aa's,
@@ -158,7 +162,7 @@ class AtomPartition():
         Obtains a position array for the 3D-coordinates of each atom in the provided structure.
         '''
         coords = []   # construct a (3 x natoms) array
-        for model in self.struc: # for each model,
+        for model in self.structure: # for each model,
             for chain in model:    # for each chain,
                 for res in chain:   # for each residue,
                     if res.get_resname() in basics:   # if residue is in the class of polar aa's,
@@ -171,7 +175,7 @@ class AtomPartition():
         Obtains a position array for the 3D-coordinates of each atom in the provided structure.
         '''
         coords = []   # construct a (3 x natoms) array
-        for model in self.struc: # for each model,
+        for model in self.structure: # for each model,
             for chain in model:    # for each chain,
                 for res in chain:   # for each residue,
                     if res.get_resname() in larges:   # if residue is in the class of large aa's,
@@ -184,7 +188,7 @@ class AtomPartition():
         Obtains a position array for the 3D-coordinates of each atom in the provided structure.
         '''
         coords = []   # construct a (3 x natoms) array
-        for model in self.struc: # for each model,
+        for model in self.structure: # for each model,
             for chain in model:    # for each chain,
                 for res in chain:   # for each residue,
                     if res.get_resname() in smalls: # if residue is in the class of small aa's,
@@ -200,7 +204,7 @@ class AtomPartition():
         Obtains a position array for the 3D-coordinates of each atom in the provided structure.
         '''
         coords = []   # construct a (3 x natoms) array
-        for model in self.struc: # for each model,
+        for model in self.structure: # for each model,
             for chain in model:    # for each chain,
                 for res in chain:   # for each residue,
                     if res.get_resname() in specials: # if residue is in the class of small aa's,
@@ -208,8 +212,8 @@ class AtomPartition():
                             coords.append(atom.get_coord()) # get the coordinates, append to a new array
         return np.array(coords)    # convert to np.ndarray
     
-    def __init__(self, s:Bio.PDB.Structure.Structure):
-        self.struc = s
+    def __init__(self, s:Structure):
+
         self.byelemtype = [self.sepEC(), self.sepEN(), self.sepEO(), self.sepES()]
         self.byaatype = [self.sepRHψ(),self.sepRl(),self.sepRs(),self.sepRδ0(),self.sepRδa(),self.sepRδb()]
         self.bysstype = [self.sepTs()]
